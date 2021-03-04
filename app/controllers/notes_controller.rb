@@ -1,9 +1,10 @@
 class NotesController < ApplicationController
-  before_action :authorized, :set_note, only: [:show, :update, :destroy]
+  before_action :set_note, only: [:show, :update, :destroy]
+  before_action :authorized
 
   # GET /notes
   def index
-    @notes = Note.where(user_id: @user.id)
+    @notes = Note.where user: @user.id
 
     render json: @notes
   end
@@ -16,7 +17,7 @@ class NotesController < ApplicationController
   # POST /notes
   def create
     @note = Note.new(note_params)
-    @note.user_id = @user.id
+    @note.user = @user
 
     if @note.save
       render json: @note, status: :created, location: @note
@@ -45,7 +46,7 @@ class NotesController < ApplicationController
       @note = Note.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
+    # Only allow a trusted parameter "white list" through.
     def note_params
       params.require(:note).permit(:message, :user_id)
     end
